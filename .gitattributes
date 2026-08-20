@@ -1,2 +1,24 @@
-# Auto detect text files and perform LF normalization
+# Domyslnie: normalizuj do LF w repozytorium.
+# Na Windowsie git przy checkoucie zamieni na CRLF, jesli core.autocrlf=true.
 * text=auto
+
+# --- Jawne deklaracje zamiast zgadywania ---
+
+*.md    text eol=lf
+*.txt   text eol=lf
+*.yml   text eol=lf
+*.json  text eol=lf
+
+# PowerShell: CRLF na dysku.
+# PS 5.1 radzi sobie z LF, ale natywne CRLF eliminuje niespodzianki
+# przy edycji w ISE i przy kopiowaniu fragmentow do konsoli.
+*.ps1   text eol=crlf
+*.psm1  text eol=crlf
+*.psd1  text eol=crlf
+
+# --- Binaria: bez konwersji ---
+*.png   binary
+*.jpg   binary
+*.pdf   binary
+*.zip   binary
+*.mp4   binary
