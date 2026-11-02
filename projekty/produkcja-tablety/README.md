@@ -35,6 +35,7 @@ Projekt rozwiązuje realny problem: brak cyfrowej rejestracji produkcji per oper
         ├── produkcja-form.html   ← formularz wpisu produkcji
         ├── obecnosc.html         ← rejestracja obecności
         ├── warehouse-view.html   ← widok dla magazynu
+        ├── awarie.html           ← lista awarii dla utrzymania ruchu
         └── index.html            ← dashboard zarządzający
         │
         │  fetch() → HTTP POST / GET
@@ -48,7 +49,8 @@ Projekt rozwiązuje realny problem: brak cyfrowej rejestracji produkcji per oper
         ├── Arkusze per maszyna (11 arkuszy)
         ├── Arkusz Operatorzy
         ├── Arkusz Obecność
-        └── Arkusz Pamięć Magazynu
+        ├── Arkusz Pamięć Magazynu
+        └── Arkusz Awarie
         │
         └── Automatyczne raporty e-mail
             (tygodniowe + miesięczne, HTML + PDF)
@@ -69,6 +71,7 @@ Projekt rozwiązuje realny problem: brak cyfrowej rejestracji produkcji per oper
 - [x] Tryb kiosk na tabletach Android (ADB + Chrome)
 - [x] Blokada wierszy starszych niż 2 dni (ochrona danych historycznych)
 - [x] Auto-formatowanie dat wpisywanych jako liczby
+- [x] Moduł awarii maszyn: zgłoszenie z tabletu bez wpisanego zlecenia, powiadomienie e-mail, osobna strona dla utrzymania ruchu (uwagi serwisu i zamykanie awarii), sekcja awarii w raporcie tygodniowym
 
 ### W toku
 - [ ] Integracja z wewnętrznym systemem magazynowym (WMS)
@@ -85,6 +88,10 @@ Projekt rozwiązuje realny problem: brak cyfrowej rejestracji produkcji per oper
 **gviz API — cicho psujące się zapytania** — Google Sheets Visualization API wymaga czystego URL bez parametrów `tq=`. Dodanie `select * limit 400 offset 1` powodowało całkowite milczące odrzucenie odpowiedzi bez błędu w konsoli.
 
 **appendRow na preformatowanych arkuszach** — preformatowane puste wiersze powodują że `appendRow` wpisuje dane do wiersza 1000+ zamiast pierwszego logicznie pustego. Rozwiązanie: funkcja szukająca pierwszego faktycznie pustego wiersza.
+
+**Zgłoszenie awarii, które nie może zginąć**: moduł awarii zapisuje wiersz w arkuszu pod blokadą (`LockService`, bo z kilkunastu tabletów można pisać jednocześnie), dopiero potem wysyła e-mail, w osobnym `try/catch` i poza blokadą. Awaria poczty nie kasuje zgłoszenia: formularz pokazuje ostrzeżenie, a administrator dostaje osobne powiadomienie o błędzie. Zakładka z awariami ma format tekstowy, więc opis zaczynający się od `=` nie zamienia się w formułę, a wszystko, co wpisuje człowiek, jest escapowane w mailu, raporcie i na stronie.
+
+**Backend testowany bez Google**: logikę Apps Script uruchamiam w Node (`vm`) na własnych atrapach `SpreadsheetApp`, `MailApp` i `LockService`. Testy obejmują walidację, zajętą blokadę, awarię poczty i granice tygodnia w raporcie, a pliki do wdrożenia buduje skrypt z oryginałów, nie ręczna edycja.
 
 **Tryb kiosk bez MDM** — blokada tabletu bez Mobile Device Management, tylko Android ADB + zabezpieczenia JS po stronie frontendowej. Proste, skuteczne na małą skalę.
 
@@ -103,6 +110,7 @@ produkcja-tablety/
 │   ├── produkcja-form.html
 │   ├── obecnosc.html
 │   ├── warehouse-view.html
+│   ├── awarie.html
 │   └── index.html
 ├── scripts/
 │   └── apps-script.js
